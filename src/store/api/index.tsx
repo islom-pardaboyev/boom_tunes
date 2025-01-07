@@ -1,16 +1,16 @@
 import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
-import { API } from "../../hook/useEnv";
-import { useSelector } from "react-redux";
+import { API } from "../../hooks/useEnv";
 import { RootState } from "..";
 
 const baseQuery = async (args: any, api: any, extraOptions: any) => {
-  const token = useSelector((state: RootState) => state.token.access_token);
   const rawBaseQuery = fetchBaseQuery({
     baseUrl: API,
-    prepareHeaders: (headers) => {
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).token.access_token;
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
+      return headers;
     },
   });
 
@@ -27,8 +27,8 @@ const baseQuery = async (args: any, api: any, extraOptions: any) => {
 const baseQueryWithRetry = retry(baseQuery, { maxRetries: 0 });
 
 export const api = createApi({
-  reducerPath: "movie",
-  tagTypes: ["movie"],
+  reducerPath: "boom_tunes",
+  tagTypes: ["boom_tunes"],
   baseQuery: baseQueryWithRetry,
   endpoints: () => ({}),
 });
