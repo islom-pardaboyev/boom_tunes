@@ -1,7 +1,9 @@
 import { AlbumContext } from "../../utils";
 import { useGetAlbumQuery } from "../../store/api/get-several-albums-api";
+import { useNavigate } from "react-router-dom";
 
 function SeveralAlbums() {
+  const navigate = useNavigate()
     const { data: albums } = useGetAlbumQuery(true) as {
         data: { albums: AlbumContext };
       };
@@ -11,7 +13,7 @@ function SeveralAlbums() {
       <div className="grid grid-cols-1 gap-5 m-3">
         {albums &&
           albums.albums.map((album, inx) => (
-            <div
+            <div onClick={() => navigate(`/playlist/${album.id}`)}
               key={inx}
               className="flex p-2 active:bg-zinc-800 cursor-pointer rounded-md items-center  gap-3"
             >

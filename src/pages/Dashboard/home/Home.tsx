@@ -14,12 +14,8 @@ function Home() {
   const [playlists, setPlaylists] = useState<
     SpotifyApi.PlaylistObjectSimplified[]
   >([]);
-  const [albums, setAlbums] = useState<SpotifyApi.AlbumObjectSimplified[]>([]);
   const [artists, setArtists] = useState<SpotifyApi.ArtistObjectFull[]>([]);
   const [tracks, setTracks] = useState<SpotifyApi.TrackObjectFull[]>([]);
-  const [episode, setEpisode] = useState<SpotifyApi.EpisodeObjectSimplified[]>(
-    []
-  );
 
   const spotifyApi = new SpotifyWebApi({
     clientId: CLIENT_ID,
@@ -36,11 +32,7 @@ function Home() {
           setPlaylists(res.body.playlists.items);
         }
       });
-      spotifyApi.searchAlbums(searchedText).then((res) => {
-        if (res.body.albums) {
-          setAlbums(res.body.albums.items);
-        }
-      });
+
       spotifyApi.searchArtists(searchedText).then((res) => {
         if (res.body.artists) {
           setArtists(res.body.artists.items);
@@ -49,11 +41,6 @@ function Home() {
       spotifyApi.searchTracks(searchedText).then((res) => {
         if (res.body.tracks) {
           setTracks(res.body.tracks.items);
-        }
-      });
-      spotifyApi.searchEpisodes(searchedText).then((res) => {
-        if (res.body.episodes) {
-          setEpisode(res.body.episodes.items);
         }
       });
     }
@@ -94,7 +81,6 @@ function Home() {
       }
     });
   });
-  console.log(playlists);
   const { register, handleSubmit } = useForm<formValues>();
   const formSubmit = (data: formValues) => {
     setSearchedText(data.text);

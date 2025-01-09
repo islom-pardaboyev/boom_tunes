@@ -38,6 +38,7 @@ export type AlbumContext = {
       uri: string;
     }[];
   };
+  id: string
   type: string;
 }[];
 

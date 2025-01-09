@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import { useGetSeveralArtistQuery } from "../../store/api/get-several-artist-api";
 import { ArtistContext } from "../../utils";
 
 function SeveralArtists() {
+  const navigate = useNavigate()
     const { data: artists } = useGetSeveralArtistQuery(true) as {
         data: { artists: ArtistContext };
       };
@@ -11,7 +13,7 @@ function SeveralArtists() {
       <div className="grid grid-cols-1 gap-5 m-3">
         {artists &&
           artists.artists.map((artist, inx) => (
-            <div
+            <div onClick={() => navigate(`/artist/${artist.id}`)}
               key={inx}
               className="flex active:bg-zinc-800 cursor-pointer p-2 rounded-md items-center  gap-3"
             >
