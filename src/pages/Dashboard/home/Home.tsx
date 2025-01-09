@@ -7,11 +7,15 @@ import { useEffect, useState } from "react";
 import { CLIENT_ID } from "../../../hooks/useEnv";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store";
+import ArtistCard from "../../../components/artist_card/ArtistCard";
+import PlaylistCard from "../../../components/playlist_card/PlaylistCard";
 function Home() {
   const token = useSelector((state: RootState) => state.token.access_token);
   const [searchedText, setSearchedText] = useState("");
-  const [playlists, setPlaylists] = useState<any[]>([]);
-  const [albums, setAlbums] = useState<any[]>([]);
+  const [playlists, setPlaylists] = useState<
+    SpotifyApi.PlaylistObjectSimplified[]
+  >([]);
+  const [albums, setAlbums] = useState<SpotifyApi.AlbumObjectSimplified[]>([]);
   const [artists, setArtists] = useState<SpotifyApi.ArtistObjectFull[]>([]);
   const [tracks, setTracks] = useState<SpotifyApi.TrackObjectFull[]>([]);
   const [episode, setEpisode] = useState<SpotifyApi.EpisodeObjectSimplified[]>(
@@ -55,7 +59,7 @@ function Home() {
       });
     }
   }, [searchedText]);
-  
+
   type formValues = {
     text: string;
   };
@@ -91,7 +95,7 @@ function Home() {
       }
     });
   });
-
+  console.log(playlists);
   const { register, handleSubmit } = useForm<formValues>();
   const formSubmit = (data: formValues) => {
     setSearchedText(data.text);
@@ -113,9 +117,32 @@ function Home() {
             {...register("text")}
             type="text"
             placeholder="Search..."
-            className="outline-none bg-transparent rounded-md"
+            className="outline-none bg-transparent rounded-md w-full"
           />
         </form>
+
+        {artists && (
+          <div className="mt-5">
+            <p className="font-bold text-lg mb-3">Artists</p>
+            <div className="flex items-center gap-5 overflow-y-auto">
+              {artists.map((artist, inx) => (
+                <ArtistCard key={inx} {...artist} />
+              ))}
+            </div>
+          </div>
+        )}
+        {playlists && (
+          <div className="mt-5">
+            <p className="font-bold text-lg mb-3">PLaylists</p>
+            <div className="flex items-center gap-5 overflow-y-auto">
+              {playlists
+                .filter((item) => item)
+                .map((playlist, inx) => (
+                 <PlaylistCard key={inx} {...playlist}/>
+                ))}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

@@ -3,6 +3,19 @@
 @tailwind utilities;
 @layer base {
   :root {
-    --radius: 0.5rem
+    --radius: 0.5rem;
   }
+}
+
+::-webkit-scrollbar {
+  background-color: grey;
+  width: 5px;
+  border-radius: 10px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb{
+  background-color: #333;
+  border-radius: 10px;
+  border: 2px solid grey;
 }
