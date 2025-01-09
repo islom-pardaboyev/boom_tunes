@@ -1,6 +1,4 @@
 import { Search } from "lucide-react";
-import SeveralAlbums from "../../../components/several_albums/SeveralAlbums";
-import SeveralArtists from "../../../components/several_artists/SeveralArtists";
 import SpotifyWebApi from "spotify-web-api-node";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
@@ -9,9 +7,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import ArtistCard from "../../../components/artist_card/ArtistCard";
 import PlaylistCard from "../../../components/playlist_card/PlaylistCard";
+import TrackCard from "../../../components/track_card/TrackCard";
 function Home() {
   const token = useSelector((state: RootState) => state.token.access_token);
-  const [searchedText, setSearchedText] = useState("");
+  const [searchedText, setSearchedText] = useState<string>();
   const [playlists, setPlaylists] = useState<
     SpotifyApi.PlaylistObjectSimplified[]
   >([]);
@@ -101,50 +100,53 @@ function Home() {
     setSearchedText(data.text);
   };
   return (
-    <main className="w-full h-screen overflow-x-auto text-white grid grid-cols-5">
-      <aside className="flex flex-col gap-5 overflow-y-auto bg-black">
-        <SeveralAlbums />
-        <SeveralArtists />
-      </aside>
-      <div className="col-span-4 bg-zinc-900 p-5">
-        <form
-          onSubmit={handleSubmit(formSubmit)}
-          action=""
-          className="flex items-center bg-black gap-3 p-3 rounded-full"
-        >
-          <Search />
-          <input
-            {...register("text")}
-            type="text"
-            placeholder="Search..."
-            className="outline-none bg-transparent rounded-md w-full"
-          />
-        </form>
-
-        {artists && (
-          <div className="mt-5">
-            <p className="font-bold text-lg mb-3">Artists</p>
-            <div className="flex items-center gap-5 overflow-y-auto">
-              {artists.map((artist, inx) => (
-                <ArtistCard key={inx} {...artist} />
+    <div className="section-style">
+      <form
+        onSubmit={handleSubmit(formSubmit)}
+        action=""
+        className="flex items-center bg-black gap-3 p-3 rounded-full"
+      >
+        <Search />
+        <input
+          {...register("text")}
+          type="text"
+          placeholder="Search..."
+          className="outline-none bg-transparent rounded-md w-full"
+        />
+      </form>
+      {searchedText && artists && (
+        <div className="mt-5">
+          <p className="font-bold text-lg mb-3">Artists</p>
+          <div className="flex items-center gap-5 overflow-y-auto">
+            {artists.map((artist, inx) => (
+              <ArtistCard key={inx} {...artist} />
+            ))}
+          </div>
+        </div>
+      )}
+      {searchedText && playlists && (
+        <div className="mt-5">
+          <p className="font-bold text-lg mb-3">Playlists</p>
+          <div className="flex items-center gap-5 overflow-y-auto">
+            {playlists
+              .filter((item) => item)
+              .map((playlist, inx) => (
+                <PlaylistCard key={inx} {...playlist} />
               ))}
-            </div>
           </div>
-        )}
-        {playlists && (
-          <div className="mt-5">
-            <p className="font-bold text-lg mb-3">PLaylists</p>
-            <div className="flex items-center gap-5 overflow-y-auto">
-              {playlists
-                .filter((item) => item)
-                .map((playlist, inx) => (
-                 <PlaylistCard key={inx} {...playlist}/>
-                ))}
-            </div>
+        </div>
+      )}
+      {searchedText && tracks && (
+        <div className="mt-5">
+          <p className="font-bold text-lg mb-3">Tracks</p>
+          <div className="flex items-center gap-5 overflow-y-auto">
+            {tracks.map((track, inx) => (
+              <TrackCard key={inx} {...track} />
+            ))}
           </div>
-        )}
-      </div>
-    </main>
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -19,3 +19,7 @@
   border-radius: 10px;
   border: 2px solid grey;
 }
+
+.section-style{
+  @apply col-span-4 h-screen overflow-y-auto text-white bg-zinc-900 p-5
+}
