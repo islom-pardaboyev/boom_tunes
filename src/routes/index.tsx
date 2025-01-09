@@ -7,13 +7,9 @@ function CustomRoutes() {
     const token = useSelector((state:RootState) => state.token.access_token)
   return (
     token? (
-      <div>
         <DashboardRoutes/>
-      </div>
     ) : (
-      <div>
         <LoginRoutes/>
-      </div>
     )
   )
 }

@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import tokenReducer from './slice/token-slice';
 import { api } from './api';
 
+
 const store = configureStore({
   reducer: {
     token: tokenReducer,

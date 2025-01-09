@@ -1,57 +1,122 @@
-import { useGetAlbumQuery } from "../../../store/api/get-several-albums-api";
-import { useGetSeveralArtistQuery } from "../../../store/api/get-several-artist-api";
-import { AlbumContext, ArtistContext } from "../../../utils";
-
+import { Search } from "lucide-react";
+import SeveralAlbums from "../../../components/several_albums/SeveralAlbums";
+import SeveralArtists from "../../../components/several_artists/SeveralArtists";
+import SpotifyWebApi from "spotify-web-api-node";
+import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { CLIENT_ID } from "../../../hooks/useEnv";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store";
 function Home() {
-  const { data: albums } = useGetAlbumQuery(true) as {
-    data: { albums: AlbumContext };
-  };
-  const { data: artists } = useGetSeveralArtistQuery(true) as {
-    data: { artists: ArtistContext };
-  };
+  const token = useSelector((state: RootState) => state.token.access_token);
+  const [searchedText, setSearchedText] = useState("");
+  const [playlists, setPlaylists] = useState<any[]>([]);
+  const [albums, setAlbums] = useState<any[]>([]);
+  const [artists, setArtists] = useState<SpotifyApi.ArtistObjectFull[]>([]);
+  const [tracks, setTracks] = useState<SpotifyApi.TrackObjectFull[]>([]);
+  const [episode, setEpisode] = useState<SpotifyApi.EpisodeObjectSimplified[]>(
+    []
+  );
 
-  console.log(artists);
+  const spotifyApi = new SpotifyWebApi({
+    clientId: CLIENT_ID,
+  });
+  useEffect(() => {
+    if (token) {
+      spotifyApi.setAccessToken(token);
+    }
+  }, [searchedText]);
+  useEffect(() => {
+    if (searchedText) {
+      spotifyApi.searchPlaylists(searchedText).then((res) => {
+        if (res.body.playlists) {
+          setPlaylists(res.body.playlists.items);
+        }
+      });
+      spotifyApi.searchAlbums(searchedText).then((res) => {
+        if (res.body.albums) {
+          setAlbums(res.body.albums.items);
+        }
+      });
+      spotifyApi.searchArtists(searchedText).then((res) => {
+        if (res.body.artists) {
+          setArtists(res.body.artists.items);
+        }
+      });
+      spotifyApi.searchTracks(searchedText).then((res) => {
+        if (res.body.tracks) {
+          setTracks(res.body.tracks.items);
+        }
+      });
+      spotifyApi.searchEpisodes(searchedText).then((res) => {
+        if (res.body.episodes) {
+          setEpisode(res.body.episodes.items);
+        }
+      });
+    }
+  }, [searchedText]);
+  
+  type formValues = {
+    text: string;
+  };
+  window.addEventListener("offline", () => {
+    if (!document.getElementById("offlineDiv")) {
+      const offlineDiv = document.createElement("div");
+      offlineDiv.id = "offlineDiv";
+      offlineDiv.className =
+        "fixed top-0 left-0 flex font-bold flex-col items-center justify-center duration-300 w-full h-full bg-black";
+
+      const offlineImg = document.createElement("img");
+      offlineImg.src = "/offline-img.png";
+
+      const message = document.createElement("p");
+      message.style.color = "white";
+      message.style.fontSize = "4rem";
+      message.textContent = "You are offline";
+
+      const subMessage = document.createElement("p");
+      subMessage.style.color = "#4C585B";
+      subMessage.textContent = "Please make sure you are online";
+
+      offlineDiv.appendChild(offlineImg);
+      offlineDiv.appendChild(message);
+      offlineDiv.appendChild(subMessage);
+
+      document.body.appendChild(offlineDiv);
+    }
+    window.addEventListener("online", () => {
+      const offlineDiv = document.getElementById("offlineDiv");
+      if (offlineDiv) {
+        offlineDiv.remove();
+      }
+    });
+  });
+
+  const { register, handleSubmit } = useForm<formValues>();
+  const formSubmit = (data: formValues) => {
+    setSearchedText(data.text);
+  };
   return (
     <main className="w-full h-screen overflow-x-auto text-white grid grid-cols-5">
-      <aside className="border-r-2 border-white flex flex-col gap-5 overflow-y-auto bg-black">
-        <div>
-          <h1 className="text-white font-bold m-3">Albums</h1>
-          <div className="grid grid-cols-1 gap-5 m-3">
-            {albums &&
-              albums.albums.map((album, inx) => (
-                <div
-                  key={inx}
-                  className="flex p-2 rounded-md items-center  gap-3"
-                >
-                  <img src={album.images[2].url} alt="" />
-                  <div className="flex flex-col">
-                    <h1 className="font-bold text-lg">{album.name}</h1>
-                    <p className="text-sm text-zinc-500">{album.label}</p>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-        <div>
-          <h1 className="text-white font-bold m-3">Artist</h1>
-          <div className="grid grid-cols-1 gap-5 m-3">
-            {artists &&
-              artists.artists.map((artist, inx) => (
-                <div
-                  key={inx}
-                  className="flex p-2 rounded-md items-center  gap-3"
-                >
-                  <img src={artist.images[2].url} className="size-[70px] rounded-full" alt="" />
-                  <div className="flex flex-col">
-                    <h1 className="font-bold text-lg">{artist.name}</h1>
-                    <p className="text-sm text-zinc-500">{artist.followers.total.toLocaleString()}</p>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
+      <aside className="flex flex-col gap-5 overflow-y-auto bg-black">
+        <SeveralAlbums />
+        <SeveralArtists />
       </aside>
-      <div className="col-span-4"></div>
+      <div className="col-span-4 bg-zinc-900 p-5">
+        <form
+          onSubmit={handleSubmit(formSubmit)}
+          action=""
+          className="flex items-center bg-black gap-3 p-3 rounded-full"
+        >
+          <Search />
+          <input
+            {...register("text")}
+            type="text"
+            placeholder="Search..."
+            className="outline-none bg-transparent rounded-md"
+          />
+        </form>
+      </div>
     </main>
   );
 }
